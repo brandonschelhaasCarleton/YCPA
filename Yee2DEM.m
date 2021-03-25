@@ -72,10 +72,10 @@ for k = 1:Reg.n
     
     %% pml
     
-    pmlMax{k}=(0.8*(pml.m+1))./(sqrt(c_mu_0/c_eps_0)*ds*sqrt(mu{k}.*epi{k}./c_eps_0./c_mu_0));
+    pmlMax{k}=(0.8*(pml{1}.m+1))./(sqrt(c_mu_0/c_eps_0)*ds*sqrt(mu{k}.*epi{k}./c_eps_0./c_mu_0));
     
-    pmlTh{k} = pml.width+1;
-    pmlS{k} = ([1:pmlTh{k}]./pml.width).^pml.m;
+    pmlTh{k} = pml{1}.width+1;
+    pmlS{k} = ([1:pmlTh{k}]./pml{1}.width).^pml{1}.m;
     pmlSm{k} = fliplr(pmlS{k});
     pmlX{k} = repmat(pmlS{k},ny{k},1)';
     pmlXm{k} = repmat(pmlSm{k},ny{k},1)';
@@ -241,12 +241,16 @@ for i = 1:nSteps
         Ez{k} = Ez{k} - dt./epi{k}.*QHyx{k} + dt./epi{k}.*QHxy{k};
         
         if bc{k}.NumS > 0
+            % probably best to loop with multiple sources, but copying and pasting is easier
+            Einc1 = bc{k}.s(1).fct(yC{k},i,t,bc{k}.s(1).paras);
+            Eincp1 = bc{k}.s(1).fct(yC{k},i,t-ds/c_c/2,bc{k}.s(1).paras);
+            Einc2 = bc{k}.s(2).fct(yC{k},i,t,bc{k}.s(2).paras);
+            Eincp2 = bc{k}.s(2).fct(yC{k},i,t-ds/c_c/2,bc{k}.s(2).paras);
             
-            Einc = bc{k}.s(1).fct(yC{k},i,t,bc{k}.s(1).paras);
-            Eincp = bc{k}.s(1).fct(yC{k},i,t-ds/c_c/2,bc{k}.s(1).paras);
-            
-            Hy{k}(bc{k}.s(1).xpos,:) = Hy{k}(bc{k}.s(1).xpos,:) + dt/ds/c_mu_0*Einc;
-            Ez{k}(bc{k}.s(1).xpos-1,:) = Ez{k}(bc{k}.s(1).xpos-1,:) - dt/ds/c_eps_0/c_eta_0*Eincp;
+            Hy{k}(bc{k}.s(1).xpos,:) = Hy{k}(bc{k}.s(1).xpos,:) + dt/ds/c_mu_0*Einc1;
+            Hy{k}(bc{k}.s(2).xpos,:) = Hy{k}(bc{k}.s(2).xpos,:) + dt/ds/c_mu_0*Einc2;
+            Ez{k}(bc{k}.s(1).xpos-1,:) = Ez{k}(bc{k}.s(1).xpos-1,:) - dt/ds/c_eps_0/c_eta_0*Eincp1;
+            Ez{k}(bc{k}.s(2).xpos-1,:) = Ez{k}(bc{k}.s(2).xpos-1,:) - dt/ds/c_eps_0/c_eta_0*Eincp2;
             
         end
         

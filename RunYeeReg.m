@@ -31,4 +31,3 @@ Hy0{1} = zeros(nx{1}+1,ny{1});
 % localTitle = strcat(localTitle, ').mat');
 % 
 % save(localTitle, 'Ez_t', 'Ez_r', 'Ez_output_t', 'Ez_output_r', 'inputField', 'samplingLocation', 'Ez', 'Hx', 'Hy', 'dt', 'tSim', 'nSteps', 'dx', 'nx', 'ny');
-
